@@ -10,7 +10,7 @@ while (true) {
     print("3. Удаление пользователя по id.\n");
     print("4. Поиск пользователя.\n");
     print("5. Обновление пользователя.\n");
-    $choice = readline("Выберите действие: \n");
+    $choice = (int)readline("Выберите действие: \n");
 
     switch ($choice) {
         case 1:
