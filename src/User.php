@@ -40,8 +40,9 @@ class User
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("Неверный формат email: $email");
             }
-            $sql = "INSERT INTO Users (name, email) VALUES ('$name', '$email')";
-            $this->pdo->query($sql);
+            $sql = "INSERT INTO Users (name, email) VALUES (:name, :email)";
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute(['email' =>  $email, 'name' => $name]);
         } catch (Exception $e) {
             echo "Ошибка: " . $e->getMessage();
         }
@@ -55,7 +56,7 @@ class User
 
     public function getUserById(int $id): array
     {
-        $sql = "SELECT * FROM users WHERE id = $id";
+        $sql = "SELECT * FROM users WHERE id = ?";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -67,8 +68,9 @@ class User
             if (!$user) {
                 throw new Exception("Пользователь не найден!");
             }
-            $sql = "UPDATE users SET name = $name, email = $email WHERE id = $id;";
-            $this->pdo->query($sql);
+            $sql = "UPDATE users SET name = :name, email = :email WHERE id = :id";
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute([':id' => $id, ':email' =>  $email, ':name' => $name]);
         } catch (Exception $e) {
             echo "Ошибка: " . $e->getMessage();
         }
@@ -76,13 +78,15 @@ class User
 
     public function searchUser(string $searchString): array
     {
-        $sql = "Select * FROM Users";
+
         if ($searchString != "") {
-            $stmt = $this->pdo->query($sql . " WHERE name LIKE '%$searchString%' OR email LIKE '%$searchString%'");
-
-            return $stmt->fetchAll();
+            $sql = "Select * FROM Users";
+            $stmt = $this->pdo->query($sql);
+        } else {
+            $sql = "SELECT * FROM Users WHERE name = :searchString OR email = :searchString";
+            $stmt = $this->pdo->query($sql);
+            $stmt->execute([':searchString' => $searchString]);
         }
-
-        return $this->showData();
+        return $stmt->fetchAll();
     }
 }
