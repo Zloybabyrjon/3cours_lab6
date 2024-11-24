@@ -7,14 +7,14 @@ use Exception;
 
 class User
 {
-    private $host = '127.0.0.1';
-    private $db = 'test';
-    private $user = 'root';
-    private $pass = '1234';
-    private $charset = 'utf8';
+    private string $host = '127.0.0.1';
+    private string $db = 'test';
+    private string $user = 'root';
+    private string $pass = '1234';
+    private string $charset = 'utf8';
 
-    private $dsn;
-    private $opt = [
+    private string $dsn;
+    private array $opt = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
@@ -36,18 +36,15 @@ class User
 
     public function addUser(string $name, string $email): void
     {
-        try{
+        try {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new Exception("Неверный формат email: $email");
             }
-        $sql = "INSERT INTO Users (name, email) VALUES ('$name', '$email')";
-        $this->pdo->query($sql);
-        }
-        catch(Exception $e)
-        {
+            $sql = "INSERT INTO Users (name, email) VALUES ('$name', '$email')";
+            $this->pdo->query($sql);
+        } catch (Exception $e) {
             echo "Ошибка: " . $e->getMessage();
         }
-
     }
 
     public function DeleteUser(int $id): void
@@ -63,18 +60,16 @@ class User
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function updateUser(string $name, string $email, int $id):void
+    public function updateUser(string $name, string $email, int $id): void
     {
-        try{
+        try {
             $user = $this->getUserById($id);
-        if(!$user){
-            throw new Exception("Пользователь не найден!");
-        }
-        $sql = "UPDATE users SET name = $name, email = $email WHERE id = $id;";
-        $this->pdo->query($sql);
-    }
-        catch(Exception $e)
-        {
+            if (!$user) {
+                throw new Exception("Пользователь не найден!");
+            }
+            $sql = "UPDATE users SET name = $name, email = $email WHERE id = $id;";
+            $this->pdo->query($sql);
+        } catch (Exception $e) {
             echo "Ошибка: " . $e->getMessage();
         }
     }
@@ -82,7 +77,7 @@ class User
     public function searchUser(string $searchString): array
     {
         $sql = "Select * FROM Users";
-        if($searchString != ""){
+        if ($searchString != "") {
             $stmt = $this->pdo->query($sql . " WHERE name LIKE '%$searchString%' OR email LIKE '%$searchString%'");
 
             return $stmt->fetchAll();
